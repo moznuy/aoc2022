@@ -1,29 +1,12 @@
-def part1():
+def solution(elves_count=1):
     cur_elf = 0
-    max_elf = 0
+    max_elves = [0] * elves_count
 
     with open('input.txt', 'r') as file:
         for line in file:
             line = line.strip()
             if not line:
-                max_elf = max(max_elf, cur_elf)
-                cur_elf = 0
-            else:
-                cur_elf += int(line)
-
-    print(max_elf)
-
-
-def part2():
-    cur_elf = 0
-    max_elves = [0, 0, 0]
-
-    with open('input.txt', 'r') as file:
-        for line in file:
-            line = line.strip()
-            if not line:
-                max_elves = sorted(max_elves + [cur_elf], reverse=True)[:3]
-                # max_elf = max(max_elf, cur_elf)
+                max_elves = sorted(max_elves + [cur_elf], reverse=True)[:elves_count]
                 cur_elf = 0
             else:
                 cur_elf += int(line)
@@ -32,5 +15,5 @@ def part2():
 
 
 if __name__ == '__main__':
-    part1()
-    part2()
+    solution()
+    solution(3)
