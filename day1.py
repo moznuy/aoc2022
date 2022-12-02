@@ -16,5 +16,7 @@ def solution(elves_count=1):
 
 
 if __name__ == '__main__':
-    solution()
-    solution(3)
+    if utils.get_part() == 1:
+        solution()
+    else:
+        solution(3)
