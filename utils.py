@@ -1,5 +1,10 @@
+import os
 import sys
 from collections.abc import Generator
+
+from dotenv import load_dotenv
+
+load_dotenv()
 
 
 def input_reader() -> Generator[str, None, None]:
@@ -12,5 +17,5 @@ def get_part() -> int:
     try:
         part = int(sys.argv[1])
     except IndexError:
-        part = 1
+        part = os.environ['LEVEL']
     return part
