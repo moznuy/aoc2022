@@ -41,4 +41,4 @@ def solution2(opponent: int, condition: int):
 
 
 if __name__ == '__main__':
-    common(utils.get_part())
+    common(utils.get_level())

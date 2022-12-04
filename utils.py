@@ -13,9 +13,9 @@ def input_reader() -> Generator[str, None, None]:
             yield line.strip()
 
 
-def get_part() -> int:
+def get_level() -> int:
     try:
         part = int(sys.argv[1])
     except IndexError:
-        part = os.environ['LEVEL']
+        part = int(os.environ['LEVEL'])
     return part

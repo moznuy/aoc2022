@@ -35,7 +35,7 @@ def solution2():
 
 
 if __name__ == '__main__':
-    if utils.get_part() == 1:
+    if utils.get_level() == 1:
         solution1()
     else:
         solution2()
