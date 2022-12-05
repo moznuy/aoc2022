@@ -7,10 +7,10 @@ from dotenv import load_dotenv
 load_dotenv()
 
 
-def input_reader() -> Generator[str, None, None]:
+def input_reader(chars=None) -> Generator[str, None, None]:
     with open('input.txt', 'r') as file:
         for line in file:
-            yield line.strip()
+            yield line.strip(chars)
 
 
 def get_level() -> int:
