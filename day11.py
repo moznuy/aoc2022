@@ -40,33 +40,11 @@ def monkey_generator(inp: Generator[str, None, None]) -> Generator[Monkey, None,
             break
 
 
-def next_prime(n):
-    while True:
-        for i in range(2, n // 2 + 2):
-            if n % i == 0:
-                break
-        else:
-            return n
-        n += 1
-
-
 def solution(level: int):
     monkeys = [monkey for monkey in monkey_generator(utils.input_reader(empty_string=False))]
     modulus = 1
     for monkey in monkeys:
         modulus *= monkey.test
-    # Hahahha, Nope:
-        # if monkey.operation == Operation.Multiplication and monkey.operation_number > 0:
-        #     modulus *= monkey.operation_number
-    # Hahahha, Nope:
-    # modulus = next_prime(modulus)
-    # Hahahha, Nope:
-    # modulus = modulus + 1
-    # Hahahha, Nope:
-    # for monkey in monkeys:
-    #     assert modulus % monkey.test != 0
-    # Hahahha, Nope:
-    # modulus = 53
 
     for _round in range(1, 21 if level == 1 else 10001):
         for monkey in monkeys:
