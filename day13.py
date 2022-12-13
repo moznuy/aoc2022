@@ -7,16 +7,50 @@ from typing import Iterable
 import utils
 
 
+def convert_to_list(s: str) -> list:
+    stack = []
+    cur_digit = ""
+    ans: list | None = None
+    for c in s:
+        if c.isdigit():
+            cur_digit += c
+            continue
+
+        if cur_digit:
+            digit = int(cur_digit)
+            cur_digit = ""
+            cur = stack[-1]
+            cur.append(digit)
+
+        if c == ",":
+            continue
+
+        if c == "[":
+            stack.append([])
+            continue
+
+        if c == "]":
+            new = stack.pop()
+            if stack:
+                cur = stack[-1]
+                cur.append(new)
+            else:
+                ans = new
+            continue
+
+        assert False
+
+    assert ans is not None
+    return ans
+
+
 def pair_input() -> Iterable[tuple[list, list]]:
     gen = utils.input_reader(empty_string=False)
     while True:
         try:
-            ldict = {}
-            # TODO: Do smth not so simple )
-            for s in ("l1", "l2"):
-                _s = f"{s} = {next(gen)}"
-                exec(_s, globals(), ldict)
-            yield ldict["l1"], ldict["l2"]
+            l1 = convert_to_list(next(gen))
+            l2 = convert_to_list(next(gen))
+            yield l1, l2
         except StopIteration:
             break
 
