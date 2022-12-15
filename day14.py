@@ -134,7 +134,7 @@ class MapItem(Item, enum.StrEnum):
 
 def solution(level: int):
     m = SparseMap[MapItem]()
-    source = Coord(500, 5)
+    source = Coord(500, 0)
     m[source] = MapItem.source
 
     for line in utils.input_reader():
@@ -190,7 +190,8 @@ def solution(level: int):
                     pos = check_pos
                     break
             else:
-                if level == 2 and pos == source:
+                if pos == source:
+                    assert level == 2
                     break
                 pos = None
                 # m.pprint()
