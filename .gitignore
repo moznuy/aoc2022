@@ -1,7 +1,9 @@
 venv
 .idea
+.vscode
 
 *.py[cod]
+*.out 
 
 .env
 input.txt
