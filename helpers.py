@@ -1,4 +1,5 @@
 import argparse
+import importlib
 import os
 import sys
 
@@ -12,7 +13,7 @@ load_dotenv()
 SESSION = os.environ["COOKIE_SESSION"]
 YEAR = os.environ["YEAR"]
 DAY = os.environ["DAY"]
-LEVEL = os.environ["LEVEL"]
+LEVEL = int(os.environ["LEVEL"])
 print(f"{YEAR=} {DAY=} {LEVEL=}")
 
 
@@ -37,11 +38,17 @@ def upload():
     print(soup.article.p.text, file=sys.stderr)
 
 
+def run():
+    solution = importlib.import_module(f'day{DAY}')
+    solution.main(level=LEVEL)
+
+
 def main():
     parser = argparse.ArgumentParser()
     subparsers = parser.add_subparsers(dest="command", required=True)
     subparsers.add_parser("download")
     subparsers.add_parser("upload")
+    subparsers.add_parser("run")
     args = parser.parse_args()
     globals()[args.command]()
 
