@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 
-def input_reader(empty_string=True, chars=None) -> Generator[str, None, None]:
+def input_reader(empty_string: bool = True, chars: str | None = None) -> Generator[str, None, None]:
     with open("input.txt", "r") as file:
         for line in file:
             value = line.strip(chars)

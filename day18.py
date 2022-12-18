@@ -1,5 +1,6 @@
 import operator
 import queue
+from typing import cast
 from typing import TypeAlias
 
 import utils
@@ -19,30 +20,28 @@ def inside_box(c: Coord, mn: Coord, mx: Coord) -> bool:
     return all(mn[i] <= c[i] <= mx[i] for i in range(len(c)))
 
 
-def solution1(level):
-    cubes: list[Coord] = [tuple(map(int, line.split(','))) for line in utils.input_reader()]
+def coord_sum(a: Coord, b: Coord) -> Coord:
+    assert len(a) == len(b)
+    return cast(Coord, tuple(a[i] + b[i] for i in range(len(a))))
+
+
+def solution1(cubes: set[Coord]) -> None:
     ans = 0
     for i, cube in enumerate(cubes):
         touch = 0
-        print(i / len(cubes) * 100.)
         for j, test_cube in enumerate(cubes):
+            if j <= i:
+                continue
             if is_touching(cube, test_cube):
-                touch += 1
-        assert 0 <= touch <= 6
+                touch += 2
+        assert 0 <= touch <= 12
         ans += 6 - touch
     print(ans)
 
 
-def coord_sum(a: Coord, b: Coord) -> Coord:
-    assert len(a) == len(b)
-    return tuple(a[i] + b[i] for i in range(len(a)))
-
-
-def solution2(level):
-    cubes: set[Coord] = {tuple(map(int, line.split(','))) for line in utils.input_reader()}
-
-    mn: Coord = tuple(min(cubes, key=operator.itemgetter(i))[i] - 2 for i in range(3))
-    mx: Coord = tuple(max(cubes, key=operator.itemgetter(i))[i] + 2 for i in range(3))
+def solution2(cubes: set[Coord]) -> None:
+    mn = cast(Coord, tuple(min(cubes, key=operator.itemgetter(i))[i] - 2 for i in range(3)))
+    mx = cast(Coord, tuple(max(cubes, key=operator.itemgetter(i))[i] + 2 for i in range(3)))
 
     q: queue.Queue[Coord] = queue.Queue()
     q.put(mn)
@@ -74,5 +73,13 @@ def solution2(level):
     print(ans)
 
 
+def solution(level: int) -> None:
+    cubes: set[Coord] = {cast(Coord, tuple(map(int, line.split(',')))) for line in utils.input_reader()}
+    if level == 1:
+        solution1(cubes)
+    elif level == 2:
+        solution2(cubes)
+
+
 if __name__ == "__main__":
-    solution2(utils.get_level())
+    solution(utils.get_level())
