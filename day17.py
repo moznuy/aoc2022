@@ -1,3 +1,5 @@
+import collections
+import hashlib
 import itertools
 
 import utils
@@ -71,10 +73,42 @@ def fill_rock(chamber: list[str], rock: list[str], x: int, y: int, empty: bool, 
     return True
 
 
-def print_chamber(chamber: list[str]):
+# Investigation
+# def string_to_int(s):
+#     return int.from_bytes(hashlib.sha1(s.encode()).digest(), byteorder="little")
+#
+#
+# def print_chamber(chamber: list[str]):
+#     for i, c in enumerate(reversed(chamber)):
+#         print(len(chamber) - i, string_to_int(c) % 1000)
+#     print()
+
+
+def find_repeat_last_non_empty_n(
+        encounter: dict[tuple[str, ...], tuple[int, int]],
+        chamber: list[str],
+        empty_wall: str,
+        rock_number: int,
+        n: int
+) -> tuple[int, int, int] | None:
+    first_non_empty_wall = 0
     for c in reversed(chamber):
-        print(c)
-    print()
+        if c == empty_wall:
+            first_non_empty_wall += 1
+        else:
+            break
+
+    if len(chamber) - first_non_empty_wall <= n:
+        return None
+
+    height = len(chamber) - first_non_empty_wall - 1  # 1 for floor
+    window = tuple(chamber[-1 - first_non_empty_wall: -1 - first_non_empty_wall - n: -1])
+    if window in encounter:
+        previous_rock_number, previous_height = encounter[window]
+        return height, rock_number - previous_rock_number, height - previous_height
+
+    encounter[window] = rock_number, height
+    return None
 
 
 def solution(level):
@@ -94,16 +128,34 @@ def solution(level):
         ["##", "##"],
     ]
     falling_rocks = enumerate(itertools.cycle(rocks), 1)
+    encounter: dict[tuple[str, ...], tuple[int, int]] = {}
 
     rock: list[str] | None = None
     x: int = 0
     y: int = 0
-    last_rock1 = 2023  # 2023 12
+    last_rock = 2022 if level == 1 else 1000000000000
+    rock_number: int = 0
+    # real_height = 0
+    sim_height = 0
+
+    remaining_rounds: int | None = None
     while True:
         if rock is None:
+            if remaining_rounds is None:
+                found = find_repeat_last_non_empty_n(encounter, chamber, empty_wall, rock_number, 50)
+                if found is not None:
+                    cur_height, rock_diff, height_difference = found
+                    remaining_rocks = last_rock - rock_number
+                    sim_rounds = remaining_rocks // rock_diff
+                    remaining_rounds = remaining_rocks % rock_diff
+                    # real_height = cur_height
+                    sim_height = height_difference * sim_rounds
+            else:
+                remaining_rounds -= 1
+                if remaining_rounds == 0:
+                    break
+
             rock_number, rock = next(falling_rocks)
-            if rock_number == last_rock1:
-                break
 
             x = 3
             y = 1 + accommodate_new_rock(chamber, empty_wall, rock)
@@ -121,7 +173,6 @@ def solution(level):
         if not fill_rock(chamber, rock, x, y, empty=False):
             x = pre_x
             assert fill_rock(chamber, rock, x, y, empty=False)
-        # print_chamber(chamber)
 
         # Fall
         assert fill_rock(chamber, rock, x, y, empty=True)
@@ -131,16 +182,14 @@ def solution(level):
             assert fill_rock(chamber, rock, x, y, empty=False, final=True)
             # Next rock
             rock = None
-        # print_chamber(chamber)
 
-    print_chamber(chamber)
-    empty = 1  # 1 is for down floor
-    for c in reversed(chamber):
-        if c == empty_wall:
-            empty += 1
-        else:
-            break
-    print(len(chamber) - empty)
+    found = find_repeat_last_non_empty_n(encounter, chamber, empty_wall, rock_number, 50)
+    assert found
+    cur_height = found[0]
+    # cur_height - real_height
+    # ans = real_height + sim_height + cur_height - real_height
+    ans = sim_height + cur_height
+    print(ans)
 
 
 if __name__ == "__main__":
