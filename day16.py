@@ -1,26 +1,38 @@
 import itertools
-import pprint
 import re
+from typing import TypeAlias
 
 import utils
 
+Mask: TypeAlias = int
+
 
 def traverse(
-    cache: dict[frozenset[str], int],
+    cache: dict[Mask, int],
     vertex: str,
-    was: frozenset[str],
     index_matrix: dict[tuple[str, str], int],
     flow_list: list[tuple[int, str]],
+    masks: dict[str, Mask],
+    was: Mask,
     pressure: int = 0,
     step: int = 0,
-) -> dict[frozenset[str], int]:
+) -> dict[Mask, int]:
     cache[was] = max(cache.get(was, 0), pressure)
 
     for flow, next_vertex in flow_list:
         new_step = step - index_matrix[(vertex, next_vertex)] - 1
-        if next_vertex in was or new_step <= 0:
+        if masks[next_vertex] & was or new_step <= 0:
             continue
-        traverse(cache, next_vertex, was | {next_vertex}, index_matrix, flow_list, pressure + flow * new_step, new_step)
+        traverse(
+            cache,
+            next_vertex,
+            index_matrix,
+            flow_list,
+            masks,
+            was | masks[next_vertex],
+            pressure + flow * new_step,
+            new_step,
+        )
     return cache
 
 
@@ -44,6 +56,7 @@ def solution(level):
 
     flow_list.sort(reverse=True)
     flow_list = list(filter(lambda ii: ii[0] > 0, flow_list))
+    masks: dict[str, Mask] = {flow[1]: 1 << i for i, flow in enumerate(flow_list)}
 
     # Floyd Warshall
     for k in vertex:
@@ -55,11 +68,26 @@ def solution(level):
                         index_matrix[(i, k)] + index_matrix[(k, j)],
                     )
 
-    cache1 = traverse({}, "AA", frozenset(), index_matrix, flow_list, pressure=0, step=30)
-    cache2 = traverse({}, "AA", frozenset(), index_matrix, flow_list, pressure=0, step=26)
-
-    print(max(v for v in cache1.values()))
-    print(max(v1 + v2 for (s1, v1), (s2, v2) in itertools.product(cache2.items(), cache2.items()) if not s1.intersection(s2)))
+    if level == 1:
+        cache = traverse(
+            {}, "AA", index_matrix, flow_list, masks, was=0, pressure=0, step=30
+        )
+        print(max(v for v in cache.values()))
+    elif level == 2:
+        cache = traverse(
+            {}, "AA", index_matrix, flow_list, masks, was=0, pressure=0, step=26
+        )
+        print(
+            max(
+                v1 + v2
+                for (m1, v1), (m2, v2) in itertools.product(
+                    cache.items(), cache.items()
+                )
+                if not m1 & m2
+            )
+        )
+    else:
+        assert False
 
 
 def main(level: int):
