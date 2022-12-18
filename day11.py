@@ -28,20 +28,26 @@ def monkey_generator(inp: Generator[str, None, None]) -> Generator[Monkey, None,
     while True:
         try:
             number = int(next(inp).split()[-1][:-1])
-            items = list(map(int, next(inp).split(':')[-1].split(',')))
+            items = list(map(int, next(inp).split(":")[-1].split(",")))
             operations = next(inp).split()[-2:]
-            operation = Operation.Plus if operations[0] == '+' else Operation.Multiplication
-            operation_number = -1 if operations[1] == 'old' else int(operations[1])
+            operation = (
+                Operation.Plus if operations[0] == "+" else Operation.Multiplication
+            )
+            operation_number = -1 if operations[1] == "old" else int(operations[1])
             test = int(next(inp).split()[-1])
             test_true = int(next(inp).split()[-1])
             test_false = int(next(inp).split()[-1])
-            yield Monkey(number, items, operation, operation_number, test, test_true, test_false)
+            yield Monkey(
+                number, items, operation, operation_number, test, test_true, test_false
+            )
         except StopIteration:
             break
 
 
 def solution(level: int):
-    monkeys = [monkey for monkey in monkey_generator(utils.input_reader(empty_string=False))]
+    monkeys = [
+        monkey for monkey in monkey_generator(utils.input_reader(empty_string=False))
+    ]
     modulus = 1
     for monkey in monkeys:
         modulus *= monkey.test
@@ -52,8 +58,15 @@ def solution(level: int):
                 continue
 
             for item in monkey.items:
-                op = (lambda x, y: x + y) if monkey.operation == Operation.Plus else (lambda x, y: x * y)
-                worry = op(item, monkey.operation_number if monkey.operation_number >= 0 else item)
+                op = (
+                    (lambda x, y: x + y)
+                    if monkey.operation == Operation.Plus
+                    else (lambda x, y: x * y)
+                )
+                worry = op(
+                    item,
+                    monkey.operation_number if monkey.operation_number >= 0 else item,
+                )
                 if level == 1:
                     worry //= 3
                 else:
@@ -72,7 +85,7 @@ def solution(level: int):
         #     print(_round)
         #     pprint.pprint(monkeys)
 
-    active_monkeys = sorted(monkeys, key=attrgetter('inspected'), reverse=True)
+    active_monkeys = sorted(monkeys, key=attrgetter("inspected"), reverse=True)
     print(active_monkeys[0].inspected * active_monkeys[1].inspected)
 
 

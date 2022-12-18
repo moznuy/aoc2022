@@ -15,7 +15,7 @@ def solution(elves_count=1):
     print(sum(max_elves))
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     if utils.get_level() == 1:
         solution()
     else:

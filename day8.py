@@ -86,7 +86,7 @@ def solution2():
     print(max_saw)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     if utils.get_level() == 1:
         solution1()
     else:

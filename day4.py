@@ -13,7 +13,7 @@ def overlap(b1, e1, b2, e2):
 
 def solution(level):
     ans = 0
-    reg = re.compile(r'(\d+)-(\d+),(\d+)-(\d+)')
+    reg = re.compile(r"(\d+)-(\d+),(\d+)-(\d+)")
     for line in utils.input_reader():
         match = reg.match(line)
         assert match, line
@@ -25,5 +25,5 @@ def solution(level):
     print(ans)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     solution(utils.get_level())

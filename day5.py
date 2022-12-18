@@ -18,7 +18,7 @@ def solution(level):
 
         if start:
             for i in range(len(line) // 4 + 1):
-                sub_line = line[i*4: (i+1)*4].strip()
+                sub_line = line[i * 4 : (i + 1) * 4].strip()
                 if not sub_line:
                     continue
 
@@ -29,9 +29,9 @@ def solution(level):
 
         match = reg.match(line)
         assert match
-        amount = int(match['amount'])
-        loc1 = int(match['from']) - 1
-        loc2 = int(match['to']) - 1
+        amount = int(match["amount"])
+        loc1 = int(match["from"]) - 1
+        loc2 = int(match["to"]) - 1
 
         tmp = vecs[loc1][-amount:]
         vecs[loc1] = vecs[loc1][:-amount]
@@ -42,9 +42,9 @@ def solution(level):
     for vec in vecs:
         if not vec:
             continue
-        print(vec[-1], end='')
+        print(vec[-1], end="")
     print()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     solution(utils.get_level())

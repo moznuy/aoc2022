@@ -28,5 +28,5 @@ def solution(level):
             raise NotImplementedError
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     solution(utils.get_level())

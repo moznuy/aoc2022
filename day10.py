@@ -27,7 +27,7 @@ instruction_map: Mapping[str, Type[Instruction]] = {}
 
 @dataclasses.dataclass
 class Noop(Instruction):
-    name: str = 'noop'
+    name: str = "noop"
     cycles: int = 1
 
     def work(self, register):
@@ -36,7 +36,7 @@ class Noop(Instruction):
 
 @dataclasses.dataclass
 class Addx(Instruction):
-    name: str = 'addx'
+    name: str = "addx"
     cycles: int = 2
     operand: int = 0
 
@@ -73,9 +73,9 @@ def solution(level: int):
             next_check += 40
 
         if register_x - 1 <= crt_index <= register_x + 1:
-            print('#', end='')
+            print("#", end="")
         else:
-            print('.', end='')
+            print(".", end="")
         crt_index += 1
         if crt_index == 40:
             crt_index = 0
@@ -89,7 +89,6 @@ def solution(level: int):
 
     print()
     print(signal_sum)
-
 
 
 if __name__ == "__main__":

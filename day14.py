@@ -28,7 +28,10 @@ class Coord:
         return Coord(max(self.x, other.x), max(self.y, other.y))
 
     def normalize1(self):
-        return Coord(self.x // abs(self.x) if self.x != 0 else 0, self.y // abs(self.y) if self.y != 0 else 0)
+        return Coord(
+            self.x // abs(self.x) if self.x != 0 else 0,
+            self.y // abs(self.y) if self.y != 0 else 0,
+        )
 
 
 class Item:
@@ -36,7 +39,7 @@ class Item:
         raise NotImplementedError
 
 
-T = TypeVar('T', bound=Item)
+T = TypeVar("T", bound=Item)
 
 
 def digits(n: int) -> list[int]:
@@ -55,7 +58,7 @@ class SparseMap(Generic[T]):
 
     def __contains__(self, item: Coord):
         a = Coord(0, 0)
-        b = (item - self.origin)
+        b = item - self.origin
         c = self.size - Coord(1, 1)
         return a.x <= b.x <= c.x and a.y <= b.y <= c.y
 
@@ -75,7 +78,9 @@ class SparseMap(Generic[T]):
         self.origin = previous.origin.min(key)
         max_plus1 = (previous.origin + previous.size - Coord(1, 1)).max(key)
         self.size = max_plus1 - self.origin + Coord(1, 1)
-        self.lines = [[value.default() for _ in range(self.size.x)] for _ in range(self.size.y)]
+        self.lines = [
+            [value.default() for _ in range(self.size.x)] for _ in range(self.size.y)
+        ]
 
         for y in range(self.size.y):
             for x in range(self.size.x):
@@ -103,30 +108,30 @@ class SparseMap(Generic[T]):
         labels = [digits(n) for n in labels_raw]
         max_len = max(map(len, labels))
         for y in range(max_len):
-            print('   ', end='')
+            print("   ", end="")
             for x in range(self.size.x):
                 for i, (label, check) in enumerate(zip(labels, checks)):
                     if check(x):
-                        print(labels[i][y] if y < len(labels[0]) else ' ', end='')
+                        print(labels[i][y] if y < len(labels[0]) else " ", end="")
                         break
                 else:
-                    print(' ', end='')
+                    print(" ", end="")
             print()
 
         for y in range(self.size.y):
             label = self.origin.y + y
-            print(f"{label:2d} ", end='')
+            print(f"{label:2d} ", end="")
             for x in range(self.size.x):
-                print(self.lines[y][x], end='')
+                print(self.lines[y][x], end="")
             print()
         print()
 
 
 class MapItem(Item, enum.StrEnum):
-    background = '.'
-    wall = '#'
-    sand = 'o'
-    source = '+'
+    background = "."
+    wall = "#"
+    sand = "o"
+    source = "+"
 
     def default(self):
         return self.background
@@ -138,7 +143,9 @@ def solution(level: int):
     m[source] = MapItem.source
 
     for line in utils.input_reader():
-        wall_spline = [Coord(*map(int, coords.split(','))) for coords in line.split(' -> ')]
+        wall_spline = [
+            Coord(*map(int, coords.split(","))) for coords in line.split(" -> ")
+        ]
 
         for wall_from, wall_to in itertools.pairwise(wall_spline):
             vel = (wall_to - wall_from).normalize1()

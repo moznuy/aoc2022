@@ -5,8 +5,8 @@ def common(part):
     score = 0
     for line in utils.input_reader():
         a, b = line.split()
-        condition = me = ord(b[0]) - (ord('X')-ord('A')) - ord('A')
-        opponent = ord(a[0]) - ord('A')
+        condition = me = ord(b[0]) - (ord("X") - ord("A")) - ord("A")
+        opponent = ord(a[0]) - ord("A")
 
         if part == 1:
             score += solution1(opponent, me)
@@ -40,5 +40,5 @@ def solution2(opponent: int, condition: int):
     return round_score
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     common(utils.get_level())
