@@ -19,47 +19,27 @@ def accommodate_new_rock(chamber: list[str], empty_wall: str, rock: list[str]) -
     return 0
 
 
-def combine_lines(
-    background: str, new: str, x: int, clear: bool, final: bool
-) -> tuple[bool, str | None]:
+def combine_lines(background: str, new: str, x: int, final: bool) -> str | None:
     new_line = []
     new = new if final else new.replace("#", "@")
-    for i, b in enumerate(background):
-        j = i - x
-        if j < 0 or j >= len(new):
-            new_line.append(b)
-            continue
-
-        r = new[j]
+    new = "." * x + new + "." * (len(background) - x - len(new))
+    assert len(background) == len(new)
+    for b, r in zip(background, new):
         empty_background = b == "."
         empty_rock = r == "."
 
-        if not clear:
-            if empty_rock and empty_background:
-                new_line.append(".")
-                continue
-            if empty_rock and not empty_background:
-                new_line.append(b)
-                continue
-            if not empty_rock and empty_background:
-                new_line.append(r)
-                continue
-            if not empty_rock and not empty_background:
-                return False, ""
-        else:
-            if empty_rock and empty_background:
-                new_line.append(".")
-                continue
-            if empty_rock and not empty_background:
-                new_line.append(b)
-                continue
-            if not empty_rock and empty_background:
-                assert False
-            if not empty_rock and not empty_background:
-                new_line.append(".")
-                continue
-            assert False
-    return True, "".join(new_line)
+        if empty_rock and empty_background:
+            new_line.append(".")
+            continue
+        if empty_rock and not empty_background:
+            new_line.append(b)
+            continue
+        if not empty_rock and empty_background:
+            new_line.append(r)
+            continue
+        if not empty_rock and not empty_background:
+            return None
+    return "".join(new_line)
 
 
 def fill_rock(
@@ -67,19 +47,19 @@ def fill_rock(
     rock: list[str],
     x: int,
     y: int,
-    empty: bool,
     final: bool = False,
 ) -> bool:
-    tmp_lines = [
-        combine_lines(chamber[-i - y], line, x, empty, final)
-        for i, line in enumerate(rock)
+    tmp_lines: list[str | None] = [
+        combine_lines(chamber[-i - y], line, x, final) for i, line in enumerate(rock)
     ]
 
-    if not all(line[0] for line in tmp_lines):
+    if not all(tmp_lines):
         return False
 
-    for i, line in enumerate(rock):
-        chamber[-i - y] = tmp_lines[i][1]
+    for i, _ in enumerate(rock):
+        tmp_line = tmp_lines[i]
+        assert tmp_line
+        chamber[-i - y] = tmp_line
     return True
 
 
@@ -112,10 +92,11 @@ def find_repeat_last_non_empty_n(
     return None
 
 
-def solution(level):
+def solution(level: int) -> None:
     line = next(utils.input_reader())
     wind = itertools.cycle(line)
     chamber: list[str] = ["+-------+"]
+    chamber_copy: list[str]
     empty_wall = "|.......|"
     rocks: list[list[str]] = [
         ["####"],
@@ -156,26 +137,27 @@ def solution(level):
 
             x = 3
             y = 1 + accommodate_new_rock(chamber, empty_wall, rock)
-            assert fill_rock(chamber, rock, x, y, empty=False)
+            chamber_copy = chamber.copy()
+            assert fill_rock(chamber_copy, rock, x, y)
 
         # Wind
         w = next(wind)
-        assert fill_rock(chamber, rock, x, y, empty=True)
         pre_x = x
+        assert w in {">", "<"}
         if w == ">":
             x += 1
-        elif w == "<":
+        else:
             x -= 1
-        if not fill_rock(chamber, rock, x, y, empty=False):
+        chamber_copy = chamber.copy()
+        if not fill_rock(chamber_copy, rock, x, y):
             x = pre_x
-            assert fill_rock(chamber, rock, x, y, empty=False)
 
         # Fall
-        assert fill_rock(chamber, rock, x, y, empty=True)
         y += 1
-        if not fill_rock(chamber, rock, x, y, empty=False):
+        chamber_copy = chamber.copy()
+        if not fill_rock(chamber_copy, rock, x, y):
             y -= 1
-            assert fill_rock(chamber, rock, x, y, empty=False, final=True)
+            assert fill_rock(chamber, rock, x, y, final=True)
             # Next rock
             rock = None
 
@@ -187,5 +169,9 @@ def solution(level):
     print(sim_height + cur_height)
 
 
+def main(level: int) -> None:
+    solution(level)
+
+
 if __name__ == "__main__":
-    solution(utils.get_level())
+    main(1)
