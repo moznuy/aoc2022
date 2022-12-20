@@ -44,19 +44,18 @@ def solution(level):
     zero_number: Number = check_zero[0]
 
     modulos = len(input_sequence)
-    # print_sequence(input_sequence, numbers)
 
     rounds = 1 if level == 1 else 10
-    for _round in range(rounds):
-        print(_round)
+    for _ in range(rounds):
         for n in input_sequence:
-            # print(step / modulos * 100)
             index = indices[n]
             vel = n.number // abs(n.number) if n.number else 0
-            move_by = abs(n.number) % (modulos - 1)
-            # if move_by > modulos // 2:
-            #     vel *= -1
-            #     move_by = modulos - move_by - 1
+            move_by = abs(n.number) % (modulos - 1)  # -1 is for number == len(sequence)
+
+            # Questionable optional part:
+            if move_by > modulos // 2:
+                vel *= -1
+                move_by = modulos - move_by - 1
 
             for i in range(move_by):
                 new_index = (index + vel) % modulos
@@ -68,14 +67,10 @@ def solution(level):
                 numbers[index] = new_number
 
                 index = new_index
-            # print_sequence(input_sequence, numbers)
-        # print_sequence(input_sequence, numbers)
-    # print_sequence(input_sequence, numbers)
     ans = 0
     for plus in (1000, 2000, 3000):
         index = (indices[zero_number] + plus) % modulos
         number = numbers[index].number
-        # print(number)
         ans += number
     print(ans)
 
