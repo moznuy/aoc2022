@@ -16,10 +16,15 @@ class Node:
 
 @dataclasses.dataclass(frozen=True, eq=True)
 class Value(Node):
-    value: int
+    value: int | str
 
     def evaluate(self):
+        if isinstance(self.value, str):
+            raise ValueError("Unknown value")
         return self.value
+
+    def __str__(self):
+        return f"{self.value}"
 
 
 @dataclasses.dataclass(frozen=True, eq=True)
@@ -43,6 +48,9 @@ class Operation(Node):
             return self.left.evaluate() * self.right.evaluate()
         return self.left.evaluate() // self.right.evaluate()
 
+    def __str__(self):
+        return f"({self.left!s} {self.operation} {self.right!s})"
+
 
 class Proxy:
     def __init__(self, wrappee: Node):
@@ -52,7 +60,40 @@ class Proxy:
         return getattr(self.wrappee, attr)
 
     def __str__(self):
-        return f"P {self.wrappee}"
+        return str(self.wrappee)
+        # return f"P {self.wrappee}"
+
+
+def solve(root: Node, value: int | None = None) -> int:
+    if isinstance(root, Value):
+        assert value is not None
+        return value
+
+    known_value: int | None = 0
+    unknown_expr: Node | None = None
+    assert isinstance(root, Operation)
+    for cur in (root.left, root.right):
+        try:
+            known_value = cur.evaluate()
+        except ValueError:
+            unknown_expr = cur.wrappee
+
+    assert unknown_expr is not None
+    assert known_value is not None
+
+    if value is None:
+        return solve(unknown_expr, known_value)
+    if root.operation == '+':
+        return solve(unknown_expr, value - known_value)
+    if root.operation == '-':
+        if root.left.wrappee is unknown_expr:
+            return solve(unknown_expr, value + known_value)
+        return solve(unknown_expr, known_value - value)
+    if root.operation == '*':
+        return solve(unknown_expr, value // known_value)
+    if root.left.wrappee is unknown_expr:
+        return solve(unknown_expr, value * known_value)
+    return solve(unknown_expr, known_value // value)
 
 
 def solution(level: int):
@@ -82,6 +123,12 @@ def solution(level: int):
             )
 
     print(tree["root"].evaluate())
+
+    # Part 2
+    root = tree['root']
+    assert isinstance(root.wrappee, Operation)
+    tree['humn'].wrappee = Value('humn', 'x')
+    print(solve(root.wrappee))
 
 
 def main(level: int):
