@@ -150,10 +150,9 @@ def check_all(faces, cur_pos, next_pos) -> tuple[Edge, int] | None:
 
 
 def solution2(field, width, height, walk, rotation_map, facing_map, pos, vel):
-    pprint.pprint(field)
     faces: dict[int, Face] = {}
 
-    k = 4
+    k = 50  # 4
     assert width % k == 0
     assert height % k == 0
     face_number = 0
@@ -206,19 +205,33 @@ def solution2(field, width, height, walk, rotation_map, facing_map, pos, vel):
 
     assert len(faces) == 6
 
+    # hardcoded_solution: list[(int, int, int, int, bool)] = [
+    #     (1, 0, 2, 0, True),
+    #     (1, 1, 6, 1, True),
+    #     (1, 2, 4, 0, False),
+    #     (1, 3, 3, 0, False),
+    #     (2, 1, 3, 3, False),
+    #     (2, 2, 5, 2, True),
+    #     (2, 3, 6, 2, True),
+    #     (3, 1, 4, 3, False),
+    #     (3, 2, 5, 3, True),
+    #     (4, 1, 6, 0, True),
+    #     (4, 2, 5, 0, False),
+    #     (5, 1, 6, 3, False),
+    # ]
     hardcoded_solution: list[(int, int, int, int, bool)] = [
-        (1, 0, 2, 0, True),
-        (1, 1, 6, 1, True),
-        (1, 2, 4, 0, False),
-        (1, 3, 3, 0, False),
-        (2, 1, 3, 3, False),
-        (2, 2, 5, 2, True),
-        (2, 3, 6, 2, True),
-        (3, 1, 4, 3, False),
-        (3, 2, 5, 3, True),
-        (4, 1, 6, 0, True),
-        (4, 2, 5, 0, False),
-        (5, 1, 6, 3, False),
+        (1, 0, 6, 3, False),
+        (1, 1, 2, 3, False),
+        (1, 2, 3, 0, False),
+        (1, 3, 4, 3, True),
+        (2, 0, 6, 2, False),
+        (2, 1, 5, 1, True),
+        (2, 2, 3, 1, False),
+        (3, 2, 5, 0, False),
+        (3, 3, 4, 0, False),
+        (4, 1, 5, 3, False),
+        (4, 2, 6, 0, False),
+        (5, 2, 6, 1, False),
     ]
 
     for s in hardcoded_solution:
@@ -281,6 +294,8 @@ def solution2(field, width, height, walk, rotation_map, facing_map, pos, vel):
 
     ans = 1000 * (pos[0] + 1) + 4 * (pos[1] + 1) + facing_map[vel]
     print(ans)
+    # 178171
+    # 162096
 
 
 def solution(level: int):
