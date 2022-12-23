@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import dataclasses
 import functools
+import itertools
 import queue
 from typing import Callable
 from typing import cast
@@ -201,12 +202,7 @@ def solve_faces_common_corner(faces: dict[int, Face]) -> None:
     while True:
         did_smth = False
         for face_no, face in faces.items():
-            for c1, c2, s1, s2 in (
-                (0, 1, -1, 1),
-                (1, 2, -1, 1),
-                (2, 3, -1, 1),
-                (3, 0, -1, 1),
-            ):
+            for c1, c2 in itertools.pairwise([0, 1, 2, 3, 0]):
                 if face.edges[c1].partner is None or face.edges[c2].partner is None:
                     continue
 
@@ -215,14 +211,14 @@ def solve_faces_common_corner(faces: dict[int, Face]) -> None:
                 left_partner_parent = left_partner_edge.parent
                 assert left_partner_parent is not None
                 left_partner_no = left_partner_parent.edges.index(left_partner_edge)
-                left_partner_check_no = (left_partner_no + s1) % 4
+                left_partner_check_no = (left_partner_no - 1) % 4
 
                 right_partner_edge = face.edges[c2].partner
                 assert right_partner_edge is not None
                 right_partner_parent = right_partner_edge.parent
                 assert right_partner_parent is not None
                 right_partner_no = right_partner_parent.edges.index(right_partner_edge)
-                right_partner_check_no = (right_partner_no + s2) % 4
+                right_partner_check_no = (right_partner_no + 1) % 4
 
                 if (
                     left_partner_parent.edges[left_partner_check_no].partner is not None
