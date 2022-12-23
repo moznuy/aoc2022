@@ -1,7 +1,10 @@
 from __future__ import annotations
+
+import copy
 import dataclasses
 import functools
 import pprint
+import queue
 from typing import Callable
 from typing import cast
 from typing import Generator
@@ -86,7 +89,7 @@ def solution1(field, width, height, walk, rotation_map, facing_map, pos, vel):
     print(ans)
 
 
-@dataclasses.dataclass
+@dataclasses.dataclass(slots=True, frozen=True)
 class Face:
     number: int
     edges: Edges
@@ -99,7 +102,7 @@ class Edges(NamedTuple):
     left: Edge
 
 
-@dataclasses.dataclass
+@dataclasses.dataclass(slots=True)
 class Edge:
     check: Check
     partner: Edge | None
@@ -149,6 +152,11 @@ def check_all(faces, cur_pos, next_pos) -> tuple[Edge, int] | None:
                 return edge, crossing
 
 
+# Magic!
+def resolve_reverse(no1: int, no2: int) -> bool:
+    return (no1 < 2) == (no2 < 2)
+
+
 def solution2(field, width, height, walk, rotation_map, facing_map, pos, vel):
     faces: dict[int, Face] = {}
 
@@ -156,6 +164,9 @@ def solution2(field, width, height, walk, rotation_map, facing_map, pos, vel):
     assert width % k == 0
     assert height % k == 0
     face_number = 0
+    raw_faces: dict[Coord, int] = {}
+    raw_faces_start: Coord | None = None
+
     for i in range(height // k):
         for j in range(width // k):
             if not is_face(field, i, j, k):
@@ -202,6 +213,9 @@ def solution2(field, width, height, walk, rotation_map, facing_map, pos, vel):
             for edge in edges:
                 edge.parent = new_face
             faces[face_number] = new_face
+            raw_faces[(i, j)] = face_number
+            if raw_faces_start is None:
+                raw_faces_start = i, j
 
     assert len(faces) == 6
 
@@ -219,36 +233,129 @@ def solution2(field, width, height, walk, rotation_map, facing_map, pos, vel):
     #     (4, 2, 5, 0, False),
     #     (5, 1, 6, 3, False),
     # ]
-    hardcoded_solution: list[(int, int, int, int, bool)] = [
-        (1, 0, 6, 3, False),
-        (1, 1, 2, 3, False),
-        (1, 2, 3, 0, False),
-        (1, 3, 4, 3, True),
-        (2, 0, 6, 2, False),
-        (2, 1, 5, 1, True),
-        (2, 2, 3, 1, False),
-        (3, 2, 5, 0, False),
-        (3, 3, 4, 0, False),
-        (4, 1, 5, 3, False),
-        (4, 2, 6, 0, False),
-        (5, 2, 6, 1, False),
-    ]
+    # hardcoded_faces = copy.deepcopy(faces)
+    # hardcoded_solution: list[(int, int, int, int, bool)] = [
+    #     (1, 0, 6, 3, False),
+    #     (1, 1, 2, 3, False),
+    #     (1, 2, 3, 0, False),
+    #     (1, 3, 4, 3, True),
+    #     (2, 0, 6, 2, False),
+    #     (2, 1, 5, 1, True),
+    #     (2, 2, 3, 1, False),
+    #     (3, 2, 5, 0, False),
+    #     (3, 3, 4, 0, False),
+    #     (4, 1, 5, 3, False),
+    #     (4, 2, 6, 0, False),
+    #     (5, 2, 6, 1, False),
+    # ]
 
-    for s in hardcoded_solution:
-        ff, fe, tf, te, r = s  # From face, from edge, to face, to edge, reversed
-        faces[ff].edges[fe].partner = faces[tf].edges[te]
-        faces[ff].edges[fe].reversed = r
-        faces[tf].edges[te].partner = faces[ff].edges[fe]
-        faces[tf].edges[te].reversed = r
+    # for s in hardcoded_solution:
+    #     ff, fe, tf, te, r = s  # From face, from edge, to face, to edge, reversed
+    #     hardcoded_faces[ff].edges[fe].partner = hardcoded_faces[tf].edges[te]
+    #     hardcoded_faces[ff].edges[fe].reversed = r
+    #     hardcoded_faces[tf].edges[te].partner = hardcoded_faces[ff].edges[fe]
+    #     hardcoded_faces[tf].edges[te].reversed = r
+    #
+    # for face_no, face in hardcoded_faces.items():
+    #     for edge_no, edge in enumerate(face.edges):
+    #         assert (
+    #             edge.partner is not None
+    #         ), f"Face {face_no} edge {edge_no} has no partner"
+    #         assert (
+    #             edge.reversed is not None
+    #         ), f"Face {face_no} edge {edge_no} has no partner"
 
-    for face_no, face in faces.items():
-        for edge_no, edge in enumerate(face.edges):
-            assert (
-                edge.partner is not None
-            ), f"Face {face_no} edge {edge_no} has no partner"
-            assert (
-                edge.reversed is not None
-            ), f"Face {face_no} edge {edge_no} has no partner"
+    assert raw_faces_start is not None
+    raw_tries: list[Coord] = [(-1, 0), (0, 1), (1, 0), (0, -1)]
+    raw_was: set[Coord] = {raw_faces_start}
+    q: queue.Queue[Coord] = queue.Queue()
+    q.put(raw_faces_start)
+    while not q.empty():
+        loc = q.get()
+        loc_face_no = raw_faces[loc]
+
+        for edge_no, _try in enumerate(raw_tries):
+            try_loc = c_sum(loc, _try)
+            if try_loc not in raw_faces:
+                continue
+            if try_loc in raw_was:
+                continue
+            try_face_no = raw_faces[try_loc]
+            try_edge_no = (edge_no + 2) % 4
+            faces[loc_face_no].edges[edge_no].partner = faces[try_face_no].edges[
+                try_edge_no
+            ]
+            faces[loc_face_no].edges[edge_no].reversed = False
+            faces[try_face_no].edges[try_edge_no].partner = faces[loc_face_no].edges[
+                edge_no
+            ]
+            faces[try_face_no].edges[try_edge_no].reversed = False
+
+            raw_was.add(try_loc)
+            q.put(try_loc)
+            print(loc_face_no, edge_no, try_face_no, try_edge_no)
+
+    while True:
+        did_smth = False
+        for face_no, face in faces.items():
+            for c1, c2, s1, s2 in ((0, 1, -1, 1), (1, 2, -1, 1), (2, 3, -1, 1), (3, 0, -1, 1)):
+                if face.edges[c1].partner is None or face.edges[c2].partner is None:
+                    continue
+
+                left_partner_edge: Edge = face.edges[c1].partner
+                left_partner_parent: Face = left_partner_edge.parent
+                left_partner_no = left_partner_parent.edges.index(left_partner_edge)
+                left_partner_check_no = (left_partner_no + s1) % 4
+                right_partner_edge: Edge = face.edges[c2].partner
+                right_partner_parent: Face = right_partner_edge.parent
+                right_partner_no = right_partner_parent.edges.index(right_partner_edge)
+                right_partner_check_no = (right_partner_no + s2) % 4
+                if (
+                    left_partner_parent.edges[left_partner_check_no].partner is not None
+                    or right_partner_parent.edges[right_partner_check_no].partner
+                    is not None
+                ):
+                    assert (
+                        left_partner_parent.edges[left_partner_check_no].partner
+                        is right_partner_parent.edges[right_partner_check_no]
+                    )
+                    assert (
+                        right_partner_parent.edges[right_partner_check_no].partner
+                        is left_partner_parent.edges[left_partner_check_no]
+                    )
+                    continue
+                _reversed = resolve_reverse(
+                    left_partner_check_no, right_partner_check_no
+                )
+                left_partner_parent.edges[
+                    left_partner_check_no
+                ].partner = right_partner_parent.edges[right_partner_check_no]
+                left_partner_parent.edges[left_partner_check_no].reversed = _reversed
+                right_partner_parent.edges[
+                    right_partner_check_no
+                ].partner = left_partner_parent.edges[left_partner_check_no]
+                right_partner_parent.edges[right_partner_check_no].reversed = _reversed
+                did_smth = True
+        if did_smth:
+            continue
+        break
+
+    # for face_no, face in faces.items():
+    #     edge: Edge
+    #     for edge_no, edge in enumerate(face.edges):
+    #         partner_edge: Edge = edge.partner
+    #         assert partner_edge is not None
+    #         partner_parent: Face = partner_edge.parent
+    #         partner_edge_no = partner_parent.edges.index(partner_edge)
+    #
+    #         he: Edge = hardcoded_faces[face_no].edges[edge_no]
+    #         hpe = he.partner
+    #         assert hpe is not None
+    #         hpp: Face = hpe.parent
+    #         hpe_no = hpp.edges.index(hpe)
+    #
+    #         assert partner_edge_no == hpe_no
+    #         assert partner_edge.reversed is hpe.reversed
 
     try_pos: Coord
     crossed_edge: Edge
