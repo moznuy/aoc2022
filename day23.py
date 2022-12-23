@@ -43,7 +43,6 @@ def calc_rect(elves: set[Coord], to_print: bool = False):
 
 
 def solution(level: int):
-    # field: list[list[int]] = [[0 for _ in range(N)] for _ in range(N)]
     start_i = N // 2
     start_j = N // 2
 
@@ -51,7 +50,6 @@ def solution(level: int):
     for i, line in enumerate(utils.input_reader()):
         for j, s in enumerate(line):
             if s == "#":
-                # field[start_i + i][start_j + j] = 1
                 elves.add((start_i + i, start_j + j))
 
     neighboring_tiles: list[Coord] = [
@@ -76,6 +74,7 @@ def solution(level: int):
         _round += 1
         if level == 1 and _round > 10:
             break
+
         # Propositions
         propositions.clear()
         for elf in elves:
@@ -109,7 +108,7 @@ def solution(level: int):
         neighboring_checks = neighboring_checks[1:] + [neighboring_checks[0]]
         # calc_rect(elves, to_print=True)
 
-    rect = calc_rect(elves, to_print=True)
+    rect = calc_rect(elves, to_print=False)
     if level == 1:
         print(rect[0] * rect[1] - len(elves))
     else:
