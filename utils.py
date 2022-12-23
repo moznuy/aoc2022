@@ -9,12 +9,15 @@ from dotenv import load_dotenv
 load_dotenv()
 
 
-def input_reader(empty_string: bool = True, chars: str | None = None) -> Generator[str, None, None]:
+def input_reader(
+    empty_string: bool = True, strip: bool = True, chars: str | None = None
+) -> Generator[str, None, None]:
     with open("input.txt", "r") as file:
         for line in file:
-            value = line.strip(chars)
-            if empty_string or value:
-                yield value
+            if strip:
+                line = line.strip(chars)
+            if empty_string or line:
+                yield line
 
 
 def get_level() -> int:
