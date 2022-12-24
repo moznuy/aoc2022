@@ -1,5 +1,4 @@
 import copy
-import pprint
 import queue
 from typing import TypeAlias
 
@@ -12,7 +11,7 @@ def c_sum(a: Coord, b: Coord) -> Coord:
     return a[0] + b[0], a[1] + b[1]
 
 
-def frozen_field(field: list[list[int]]):
+def frozen_field(field: list[list[int]]) -> tuple[tuple[int, ...], ...]:
     return tuple(tuple(cell for cell in row) for row in field)
 
 
@@ -70,7 +69,7 @@ def sim(
     height: int,
     period: int,
     step: int = 0,
-):
+) -> int:
     ans = 0
     q: queue.Queue[tuple[Coord, int]] = queue.Queue()
     q.put((start, step))
@@ -95,7 +94,7 @@ def sim(
     return ans
 
 
-def solution(level: int):
+def solution(level: int) -> None:
     lines = [line for line in utils.input_reader()]
     width = len(lines[0])
     height = len(lines)
@@ -130,7 +129,7 @@ def solution(level: int):
         print(step)
 
 
-def main(level: int):
+def main(level: int) -> None:
     solution(level)
 
 
