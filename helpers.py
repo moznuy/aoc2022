@@ -39,7 +39,7 @@ def upload():
 
 
 def run():
-    solution = importlib.import_module(f'day{DAY}')
+    solution = importlib.import_module(f"day{DAY}")
     solution.main(level=LEVEL)
 
 

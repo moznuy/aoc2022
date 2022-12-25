@@ -40,14 +40,25 @@ def solution1(cubes: set[Coord]) -> None:
 
 
 def solution2(cubes: set[Coord]) -> None:
-    mn = cast(Coord, tuple(min(cubes, key=operator.itemgetter(i))[i] - 2 for i in range(3)))
-    mx = cast(Coord, tuple(max(cubes, key=operator.itemgetter(i))[i] + 2 for i in range(3)))
+    mn = cast(
+        Coord, tuple(min(cubes, key=operator.itemgetter(i))[i] - 2 for i in range(3))
+    )
+    mx = cast(
+        Coord, tuple(max(cubes, key=operator.itemgetter(i))[i] + 2 for i in range(3))
+    )
 
     q: queue.Queue[Coord] = queue.Queue()
     q.put(mn)
 
     ans = 0
-    checks: list[Coord] = [(1, 0, 0), (0, 1, 0), (0, 0, 1), (-1, 0, 0), (0, -1, 0), (0, 0, -1)]
+    checks: list[Coord] = [
+        (1, 0, 0),
+        (0, 1, 0),
+        (0, 0, 1),
+        (-1, 0, 0),
+        (0, -1, 0),
+        (0, 0, -1),
+    ]
     was: set[Coord] = set()
     was.add(mn)
 
@@ -74,7 +85,9 @@ def solution2(cubes: set[Coord]) -> None:
 
 
 def solution(level: int) -> None:
-    cubes: set[Coord] = {cast(Coord, tuple(map(int, line.split(',')))) for line in utils.input_reader()}
+    cubes: set[Coord] = {
+        cast(Coord, tuple(map(int, line.split(",")))) for line in utils.input_reader()
+    }
     if level == 1:
         solution1(cubes)
     elif level == 2:
